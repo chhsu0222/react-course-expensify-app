@@ -9,7 +9,8 @@ export default class ExpenseForm extends React.Component {
         note: '',
         amount: '',
         createdAt: moment(),
-        calendarFocused: false 
+        calendarFocused: false,
+        error: ''
     }
 
     onDescriptionChange = (event) => {
@@ -25,24 +26,44 @@ export default class ExpenseForm extends React.Component {
     onAmountChange = (event) => {
         const amount = event.target.value
 
-        if (amount.match(/^\d*(\.\d{0,2})?$/)) {
-            // If the amount contains 0-2 decimal number
+        if (!amount || amount.match(/^\d{1,}(\.\d{0,2})?$/)) {
+            // If there is no amount or the amount contains 0-2 decimal number at most
             this.setState(() => ({ amount }))
         }
     }
 
     onDateChange = (createdAt) => {
-        this.setState(() => ({ createdAt }))
+        if (createdAt) {
+            // Prevent the user from being able to clear the date
+            this.setState(() => ({ createdAt }))
+        }
     }
 
     onFocusChange = ({ focused }) => {
         this.setState(() => ({ calendarFocused: focused }))
     }
 
+    onSubmit = (event) => {
+        event.preventDefault()
+
+        if (!this.state.description || !this.state.amount) {
+            this.setState(() => ({ error: 'Please provide description and amount.' }))
+        } else {
+            this.setState(() => ({ error: '' }))
+            this.props.onSubmit({
+                description: this.state.description,
+                amount: parseFloat(this.state.amount, 10) * 100,
+                createdAt: this.state.createdAt.valueOf(),
+                note: this.state.note
+            })
+        }
+    }
+
     render() {
         return (
             <div>
-                <form>
+                {this.state.error && <p>{this.state.error}</p>}
+                <form onSubmit={this.onSubmit}>
                     <input
                         type="text"
                         placeholder="Description"
