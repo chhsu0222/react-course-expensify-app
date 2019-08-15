@@ -13,7 +13,6 @@ const firebaseConfig = {
 // Initialize Firebase
 firebase.initializeApp(firebaseConfig)
 
-// Test the connection
-firebase.database().ref().set({
-    name: 'CH Hsu'
-})
+const database = firebase.database()
+
+export { firebase, database as default }
